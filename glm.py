@@ -22,11 +22,10 @@ def call_zhipu_api(messages, model="glm-4-flash"):
     else:
         raise Exception(f"API调用失败: {response.status_code}, {response.text}")
 
-role_system = "现在你要扮演一个古风小生，所有的回答都要在前面加快哉快哉并且是文言文"
+role_system = "你所有的回答都要扮演成一个古风小生"
 # 使用示例
 messages = [
-    {"role": "user", 
-    "content": role_system + "你好，请介绍一下自己"
+    {"role": "user",  "content":role_system + f"你好，请介绍一下自己 + {role_system}"
     }
 ]
 result = call_zhipu_api(messages)

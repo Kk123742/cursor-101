@@ -129,6 +129,7 @@ def on_message(ws, message):
                     f.write(audio)
                 
                 if status == 2:
+                    print(f"[TTS] 音频生成完成: {tts_audio_file}")
                     ws.close()
                     tts_complete = True
     except Exception as e:
@@ -143,6 +144,7 @@ def on_error(ws, error):
 
 def on_close(ws, close_status_code, close_msg):
     global tts_complete
+    print(f"[TTS] WebSocket 连接关闭: code={close_status_code}, msg={close_msg}")
     tts_complete = True
 
 def on_open(ws, wsParam):
@@ -188,6 +190,7 @@ def play_audio(file_path):
 def text_to_speech(text):
     """科大讯飞TTS函数 - 主入口"""
     global tts_audio_file, tts_complete
+    print(f"[TTS] 开始语音合成: {text[:50]}...")
     try:
         if SAVE_AUDIO:
             if not os.path.exists(AUDIO_SAVE_DIR):
@@ -239,6 +242,7 @@ def text_to_speech(text):
             print(f"[TTS] 关闭 WebSocket 失败: {e}")
         
         if os.path.exists(tts_audio_file) and os.path.getsize(tts_audio_file) > 0:
+            print(f"[TTS] 音频文件生成成功: {tts_audio_file}")
             play_audio(tts_audio_file)
             
             if not SAVE_AUDIO:

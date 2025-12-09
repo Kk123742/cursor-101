@@ -4,7 +4,7 @@ import json
 
 # 配置 (与 jsonbin.py 保持一致)
 BIN_ID = "6937bf44ae596e708f8cf86b"
-ACCESS_KEY = "$2a$10$ZZbTxEC6rfaeFRTzlKtcPOjdTBodLtl1f9HNMoWFtAkPVBEmOS6Yi"
+ACCESS_KEY = "$2a$10$gY3Ugd4zmxz9y8T/bKDMzuwuN7U938rNkTVdws9ZRAKKclATkyP0u"
 URL = f"https://api.jsonbin.io/v3/b/{BIN_ID}/latest"
 HEADERS = {"X-Access-Key": ACCESS_KEY}
 

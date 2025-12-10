@@ -1,0 +1,14 @@
+# API配置示例 - 复制此文件为 config.py 并填写你的API信息
+
+# 智谱AI API
+ZHIPU_API_KEY = "1732aa9845ec4ce09dca7cd10e02d209.dA36k1HPTnFk7cLU"
+
+# 科大讯飞TTS API
+XUNFEI_APPID = "02533e40"
+XUNFEI_APIKEY = "b59c8def70d9c0805e95ba042a91368a"
+XUNFEI_APISECRET = "NjRlMjM3MTRjY2EyZWUwMGFmYmFkM2Vh"
+XUNFEI_REQURL = "wss://cbm01.cn-huabei-1.xf-yun.com/v1/private/mcd9m97e6"
+
+# JSONBin.io配置
+JSONBIN_BIN_ID = "6937bf44ae596e708f8cf86b"
+JSONBIN_API_KEY = "$2a$10$ZZbTxEC6rfaeFRTzlKtcPOjdTBodLtl1f9HNMoWFtAkPVBEmOS6Yi"

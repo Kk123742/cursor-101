@@ -512,3 +512,44 @@ print(result['choices'][0]['message']['content'])
 - **字典**：用于存储键值对（配置、映射关系）
 - **嵌套结构**：列表包含字典，字典值可以是列表
 - 根据数据特点选择合适的数据结构
+
+---
+
+## 新增模块与实践知识点（4_memory_refactored / 5_backend_101 / 403_streamlit / JSONBin 监听）
+
+### 4_memory_refactored（模块化重构）
+- **分层设计**：`api.py`（API 调用）、`roles.py`（角色与提示词）、`memory.py`（记忆加载）、`logic.py`（退出判定）、`chat.py`（单轮对话）、`main.py`（入口）。
+- **记忆注入**：从外部 JSON（数组或字典）加载记忆，拼接到角色提示词中，提升一致性。
+- **提示词工程**：角色特征 + 语言风格 + 结束规则，结构化组合，便于复用。
+- **上下文管理**：系统消息 + 历史对话列表，传入大模型实现多轮对话。
+
+### conversation_memory.json（持久化对话）
+- **持久化结构**：`role_system` + `history` + `last_update`，用于重启后恢复上下文。
+- **消息格式**：列表中每条消息含 `role` 与 `content`，可直接用于聊天 API。
+- **系统规则固化**：在 `role_system` 中内嵌结束规则，确保重载后仍生效。
+
+### 403_memory_clonebot_streamlit.py（Streamlit 对话界面）
+- **UI 组件**：`st.selectbox` 角色切换、`st.chat_input` 输入、`st.chat_message` 显示历史、`st.spinner` 处理等待态。
+- **状态管理**：`st.session_state` 持久保存对话历史、选中角色、初始化标记。
+- **记忆加载与角色设定**：从文件夹读取角色记忆，合并人格设定和结束规则，形成系统提示词。
+- **多轮对话**：用户/助手消息追加到 `session_state`，每轮调用 `call_zhipu_api` 维持上下文。
+
+### 5_backend_101（JSONBin 后端与角色模块）
+- **jsonbin.py**：封装 `save_latest_reply` 与 `get_latest_reply`，使用 `X-Access-Key`/`BIN_ID` 读写 JSONBin；`timestamp` + `read` 字段管理最新消息与已读状态。
+- **roles/logic/chat/api**：与前端解耦，提供角色提示词、退出判定、单轮对话和 API 调用，便于被 Streamlit 或其他前端复用。
+- **安全与配置**：Bin ID、Access Key 分离；可根据 Bin 私有/公开选择 Access Key 或 Master Key。
+
+### 5.1_monitor_jsonbin.py（轮询监听）
+- **轮询策略**：定期 `GET /v3/b/{BIN_ID}/latest` 读取最新记录，比较 `text` 变化后打印。
+- **鉴权要点**：Bin 公开可免 Key；私有需 Access/Master Key；401/403 多因 Key 不匹配或权限不足。
+- **健壮性**：异常捕获、防抖间隔、提示常见错误（权限、Bin 存在性、限流）。
+
+### JSONBin 相关知识
+- **Bin 权限**：Public 可直接读；Private 需 Access Key 或 Master Key；修改权限用网页或 PATCH `/meta` 设 `private=false`（需 Master Key）。
+- **读写接口**：`PUT /v3/b/{BIN_ID}` 写入，`GET /v3/b/{BIN_ID}/latest` 读取；`read` 字段可用于已读标记。
+- **常见错误码**：401/403（Key 或权限），404（Bin ID 不存在/被删），429（频率限制）。
+
+### 端到端串联思路
+- Streamlit 前端：调用后端 `call_zhipu_api` 获取回复后，调用 `save_latest_reply` 将消息写入 JSONBin。
+- 监听脚本：`5.1_monitor_jsonbin.py` 轮询 JSONBin，发现新内容即打印，实现“后台推送”效果。
+- 记忆/角色：由 `roles.py` + 记忆文件构建系统提示词，确保对话风格一致；对话历史由前端或持久化文件维护。

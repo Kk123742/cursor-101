@@ -28,7 +28,7 @@ st.set_page_config(
 if "conversation_history" not in st.session_state:
     st.session_state.conversation_history = []
 if "selected_role" not in st.session_state:
-    st.session_state.selected_role = "小丑"
+    st.session_state.selected_role = "地球科学家"
 if "initialized" not in st.session_state:
     st.session_state.initialized = False
 
@@ -40,8 +40,8 @@ with st.sidebar:
     
     selected_role = st.selectbox(
         "选择角色",
-        ["小丑", "人质"],
-        index=0 if st.session_state.selected_role == "小丑" else 1
+        ["地球科学家"],
+        index=0 if st.session_state.selected_role == "地球科学家" else 1
     )
     
     if selected_role != st.session_state.selected_role:

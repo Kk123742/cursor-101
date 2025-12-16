@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 
-from roles import get_role_prompt, get_break_rules
+from roles import get_role_prompt, get_break_rules, get_role_opening
 from logic import should_exit_by_user, should_exit_by_ai
 from chat import chat_once
 from jsonbin import get_latest_reply
@@ -68,6 +68,11 @@ if not st.session_state.initialized:
     role_prompt = get_role_prompt(st.session_state.selected_role)
     system_message = role_prompt + "\n\n" + get_break_rules()
     st.session_state.conversation_history = [{"role": "system", "content": system_message}]
+
+    # 自动注入开场白为第一条助手消息
+    opening = get_role_opening(st.session_state.selected_role)
+    if opening:
+        st.session_state.conversation_history.append({"role": "assistant", "content": opening})
     st.session_state.initialized = True
 
 st.subheader(f"💬 与 {st.session_state.selected_role} 的对话")

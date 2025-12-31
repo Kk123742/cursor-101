@@ -3,9 +3,9 @@ import json
 
 try:
     import streamlit as st
-    ZHIPU_API_KEY = st.secrets.get("ZHIPU_API_KEY", "1732aa9845ec4ce09dca7cd10e02d209.dA36k1HPTnFk7cLU")
+    ZHIPU_API_KEY = st.secrets.get("ZHIPU_API_KEY", "22facac2bdb24611842f3aae2c496c2a.cOPfGBcqirfOOkGr")
 except:
-    ZHIPU_API_KEY = "1732aa9845ec4ce09dca7cd10e02d209.dA36k1HPTnFk7cLU"
+    ZHIPU_API_KEY = "22facac2bdb24611842f3aae2c496c2a.cOPfGBcqirfOOkGr"
 
 def call_zhipu_api(messages, model="glm-4-flash"):
     url = "https://open.bigmodel.cn/api/paas/v4/chat/completions"

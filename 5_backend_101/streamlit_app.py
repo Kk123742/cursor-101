@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 
-from roles import get_role_prompt, get_break_rules, get_role_opening
+from roles import get_role_prompt, get_break_rules, get_role_opening, get_role_ending
 from logic import should_exit_by_user, should_exit_by_ai
 from chat import chat_once
 from jsonbin import get_latest_reply
@@ -31,6 +31,9 @@ if "selected_role" not in st.session_state:
     st.session_state.selected_role = "地球科学家"
 if "initialized" not in st.session_state:
     st.session_state.initialized = False
+# 内部进度分值（0-100），用于判定，不对用户展示
+if "risk_score" not in st.session_state:
+    st.session_state.risk_score = 0
 
 st.title("Talk is cheap 🗨 Vibe me a future")
 st.markdown("---")
@@ -93,6 +96,28 @@ if st.query_params.get("poll") == "true":
     st.json(result)
     st.stop()
 
+def clamp_score(value: int) -> int:
+    return max(0, min(100, value))
+
+def update_risk_score(reply: str):
+    """
+    根据助手回复判定关键词调整内部分值：
+    - 可行/成立/逻辑自洽/高效 等 → +10
+    - 风险极高/代价巨大 等 → -10
+    - 其他保持不变
+    """
+    keywords_plus = ["可行", "物理上成立", "技术可行", "逻辑自洽", "高效的构想"]
+    keywords_minus = ["风险极高", "代价巨大", "极高的风险"]
+    
+    score = st.session_state.risk_score
+    
+    if any(k in reply for k in keywords_plus):
+        score += 10
+    if any(k in reply for k in keywords_minus):
+        score -= 10
+    
+    st.session_state.risk_score = clamp_score(score)
+
 user_input = st.chat_input("输入你的消息...")
 
 if user_input:
@@ -112,6 +137,26 @@ if user_input:
                 reply = chat_once(st.session_state.conversation_history, user_input, role_prompt)
                 
                 st.write(reply)
+
+                # 更新内部进度分值，并在达到上限时显示结束语
+                update_risk_score(reply)
+                if st.session_state.risk_score >= 100:
+                    # 获取并显示结束语
+                    ending = get_role_ending(st.session_state.selected_role)
+                    
+                    # 将结束语添加到对话历史
+                    st.session_state.conversation_history.append({"role": "assistant", "content": ending})
+                    
+                    # 显示结束语
+                    with st.chat_message("assistant"):
+                        st.write(ending)
+                    
+                    # 保存结束语到 JSONBin
+                    from jsonbin import save_latest_reply
+                    save_latest_reply(ending)
+                    
+                    st.info("对话已结束")
+                    st.stop()
                 
                 if should_exit_by_ai(reply):
                     st.info("对话已结束")

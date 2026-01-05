@@ -1,7 +1,7 @@
 # API配置示例 - 复制此文件为 config.py 并填写你的API信息
 
 # 智谱AI API
-ZHIPU_API_KEY = "82ba3f356586430a8497691d18f86c1c.kKGqtpj9cGKihQWL"
+ZHIPU_API_KEY = "1732aa9845ec4ce09dca7cd10e02d209.dA36k1HPTnFk7cLU"
 
 # 科大讯飞TTS API
 XUNFEI_APPID = "02533e40"

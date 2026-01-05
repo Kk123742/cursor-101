@@ -5,6 +5,7 @@ from roles import get_role_prompt, get_break_rules, get_role_opening, get_role_e
 from logic import should_exit_by_user, should_exit_by_ai
 from chat import chat_once
 from jsonbin import get_latest_reply
+from xunfei_tts import text_to_speech
 
 def get_portrait():
     return """
@@ -83,6 +84,13 @@ st.subheader(f"💬 与 {st.session_state.selected_role} 的对话")
 st.code(get_portrait(), language=None)
 st.markdown("---")
 
+# 播放开场白的语音（只在初始化时播放一次）
+if st.session_state.initialized and "opening_played" not in st.session_state:
+    opening = get_role_opening(st.session_state.selected_role)
+    if opening:
+        text_to_speech(opening)
+        st.session_state.opening_played = True
+
 for msg in st.session_state.conversation_history[1:]:
     if msg["role"] == "user":
         with st.chat_message("user"):
@@ -138,6 +146,10 @@ if user_input:
                 
                 st.write(reply)
 
+                # TTS语音播放
+                # 需要安装playsound：pip install playsound
+                text_to_speech(reply)
+
                 # 更新内部进度分值，并在达到上限时显示结束语
                 update_risk_score(reply)
                 if st.session_state.risk_score >= 100:
@@ -150,7 +162,10 @@ if user_input:
                     # 显示结束语
                     with st.chat_message("assistant"):
                         st.write(ending)
-                    
+
+                    # TTS语音播放结束语
+                    text_to_speech(ending)
+
                     # 保存结束语到 JSONBin
                     from jsonbin import save_latest_reply
                     save_latest_reply(ending)
